@@ -5,10 +5,11 @@ import { supabaseAdmin } from './supabase'
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: process.env.GOOGLE_CLIENT_ID || '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
     }),
   ],
+  secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET || 'fallback_secret_for_build',
   callbacks: {
     async signIn({ user }) {
       try {
