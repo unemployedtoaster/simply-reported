@@ -1,12 +1,31 @@
-import 'next-auth'
+import NextAuth from 'next-auth'
+import GoogleProvider from 'next-auth/providers/google'
+import { supabaseAdmin } from './supabase'
 
-declare module 'next-auth' {
-  interface Session {
-    user: {
-      id: string
-      name?: string | null
-      email?: string | null
-      image?: string | null
-    }
-  }
-}
+export const { handlers, signIn, signOut, auth } = NextAuth({
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+  ],
+  callbacks: {
+    async signIn({ user }) {
+      try {
+        await supabaseAdmin.from('users').upsert({
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          avatar_url: user.image,
+        })
+      } catch {}
+      return true
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.sub!
+      }
+      return session
+    },
+  },
+})
