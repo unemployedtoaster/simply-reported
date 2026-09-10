@@ -3,12 +3,14 @@ import { supabaseAdmin } from '@/lib/supabase'
 
 export async function GET(
   request: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
+  const { slug } = await params
+
   const { data, error } = await supabaseAdmin
     .from('articles')
     .select('*')
-    .eq('slug', params.slug)
+    .eq('slug', slug)
     .eq('approved', true)
     .single()
 
