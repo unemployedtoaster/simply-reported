@@ -20,6 +20,7 @@ export default function LoginPage() {
           Sign in to submit articles and access more features.
         </p>
         
+        <a
           href="/api/auth/signin/google"
           style={{
             display: 'flex',
