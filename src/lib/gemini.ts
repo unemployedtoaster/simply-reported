@@ -4,7 +4,7 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
 export async function rewriteArticle(title: string, content: string, source: string): Promise<string> {
   const completion = await groq.chat.completions.create({
-    model: 'llama-3.1-8b-instant',
+    model: 'llama3-8b-8192',
     messages: [
       {
         role: 'user',
@@ -23,7 +23,7 @@ Rewrite the article completely in your own words:`
 
 export async function rewriteTitle(title: string): Promise<string> {
   const completion = await groq.chat.completions.create({
-    model: 'llama-3.1-8b-instant',
+    model: 'llama3-8b-8192',
     messages: [
       {
         role: 'user',
