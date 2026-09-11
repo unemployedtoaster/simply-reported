@@ -1,29 +1,39 @@
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import Groq from 'groq-sdk'
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
 export async function rewriteArticle(title: string, content: string, source: string): Promise<string> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' })
-  
-  const prompt = `You are a journalist. Rewrite this news article in your own words. Keep all facts accurate. Do not mention the original source. Write in a neutral, professional tone.
+  const completion = await groq.chat.completions.create({
+    model: 'llama-3.1-8b-instant',
+    messages: [
+      {
+        role: 'user',
+        content: `You are a journalist. Rewrite this news article completely in your own words. Keep all facts accurate. Do not mention the original source. Write in a neutral, professional tone.
 
 Title: ${title}
 Content: ${content}
 
 Rewrite the article completely in your own words:`
-
-  const result = await model.generateContent(prompt)
-  return result.response.text()
+      }
+    ],
+    max_tokens: 1000,
+  })
+  return completion.choices[0].message.content || ''
 }
 
 export async function rewriteTitle(title: string): Promise<string> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' })
-  
-  const prompt = `Rewrite this news headline in your own words. Keep it concise and accurate. Return only the headline, nothing else.
+  const completion = await groq.chat.completions.create({
+    model: 'llama-3.1-8b-instant',
+    messages: [
+      {
+        role: 'user',
+        content: `Rewrite this news headline in your own words. Keep it concise and accurate. Return only the headline, nothing else.
 
 Original: ${title}
 Rewritten:`
-
-  const result = await model.generateContent(prompt)
-  return result.response.text().trim()
+      }
+    ],
+    max_tokens: 100,
+  })
+  return completion.choices[0].message.content?.trim() || title
 }
