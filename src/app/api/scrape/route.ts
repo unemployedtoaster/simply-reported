@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { scrapeAllSources } from '@/lib/scraper'
-import { rewriteArticle, rewriteTitle } from '@/lib/gemini'
 import { supabaseAdmin } from '@/lib/supabase'
 
 function slugify(text: string): string {
@@ -18,16 +17,8 @@ export async function GET(request: Request) {
   try {
     const articles = await scrapeAllSources()
     let posted = 0
-    const errors: string[] = []
-    const limit = 5
-
-    if (articles.length === 0) {
-      return NextResponse.json({ success: false, message: 'No articles scraped from RSS feeds' })
-    }
 
     for (const article of articles) {
-      if (posted >= limit) break
-
       const { data: existing } = await supabaseAdmin
         .from('articles')
         .select('id')
@@ -36,27 +27,20 @@ export async function GET(request: Request) {
 
       if (existing) continue
 
-      try {
-        const rewrittenContent = await rewriteArticle(article.title, article.content, article.source)
-        const rewrittenTitle = await rewriteTitle(article.title)
+      await supabaseAdmin.from('articles').insert({
+        title: article.title,
+        content: article.content,
+        original_url: article.url,
+        source: article.source,
+        image_urls: article.images.slice(0, 5),
+        slug: slugify(article.title),
+        approved: true,
+      })
 
-        await supabaseAdmin.from('articles').insert({
-          title: rewrittenTitle,
-          content: rewrittenContent,
-          original_url: article.url,
-          source: article.source,
-          image_urls: article.images.slice(0, 5),
-          slug: slugify(rewrittenTitle),
-          approved: true,
-        })
-
-        posted++
-      } catch (e) {
-        errors.push(String(e))
-      }
+      posted++
     }
 
-    return NextResponse.json({ success: true, posted, total_scraped: articles.length, errors })
+    return NextResponse.json({ success: true, posted, total_scraped: articles.length })
   } catch (error) {
     return NextResponse.json({ error: String(error) }, { status: 500 })
   }
