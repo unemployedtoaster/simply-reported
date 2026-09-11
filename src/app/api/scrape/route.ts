@@ -18,7 +18,12 @@ export async function GET(request: Request) {
   try {
     const articles = await scrapeAllSources()
     let posted = 0
+    const errors: string[] = []
     const limit = 5
+
+    if (articles.length === 0) {
+      return NextResponse.json({ success: false, message: 'No articles scraped from RSS feeds' })
+    }
 
     for (const article of articles) {
       if (posted >= limit) break
@@ -46,10 +51,12 @@ export async function GET(request: Request) {
         })
 
         posted++
-      } catch { }
+      } catch (e) {
+        errors.push(String(e))
+      }
     }
 
-    return NextResponse.json({ success: true, posted })
+    return NextResponse.json({ success: true, posted, total_scraped: articles.length, errors })
   } catch (error) {
     return NextResponse.json({ error: String(error) }, { status: 500 })
   }
