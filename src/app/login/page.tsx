@@ -1,8 +1,17 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
 export default function LoginPage() {
+  const [csrfToken, setCsrfToken] = useState('')
+
+  useEffect(() => {
+    fetch('/api/auth/csrf')
+      .then(r => r.json())
+      .then(data => setCsrfToken(data.csrfToken))
+  }, [])
+
   return (
     <div>
       <header className="wiki-header">
@@ -23,7 +32,7 @@ export default function LoginPage() {
         </p>
 
         <form action="/api/auth/signin/google" method="POST">
-          <input type="hidden" name="csrfToken" value="" />
+          <input type="hidden" name="csrfToken" value={csrfToken} />
           <button type="submit" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', padding: '12px 24px', border: '1px solid #a2a9b1', background: '#ffffff', cursor: 'pointer', fontSize: '16px', color: '#202122', width: '100%' }}>
             <svg width="20" height="20" viewBox="0 0 48 48">
               <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
