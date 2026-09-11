@@ -1,6 +1,14 @@
-import NextAuth from 'next-auth'
+import NextAuth, { DefaultSession } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 import { supabaseAdmin } from './supabase'
+
+declare module 'next-auth' {
+  interface Session {
+    user: {
+      id: string
+    } & DefaultSession['user']
+  }
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
