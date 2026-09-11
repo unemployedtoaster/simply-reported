@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
 
 export async function rewriteArticle(title: string, content: string, source: string): Promise<string> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+  const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' })
   
   const prompt = `You are a journalist. Rewrite this news article in your own words. Keep all facts accurate. Do not mention the original source. Write in a neutral, professional tone.
 
@@ -17,7 +17,7 @@ Rewrite the article completely in your own words:`
 }
 
 export async function rewriteTitle(title: string): Promise<string> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+  const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' })
   
   const prompt = `Rewrite this news headline in your own words. Keep it concise and accurate. Return only the headline, nothing else.
 
